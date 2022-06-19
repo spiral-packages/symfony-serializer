@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Spiral\Serializer\Symfony;
 
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 class NormalizersRegistry implements NormalizersRegistryInterface
@@ -17,20 +18,20 @@ class NormalizersRegistry implements NormalizersRegistryInterface
         }
     }
 
-    public function register(NormalizerInterface $normalizer): void
+    public function register(NormalizerInterface|DenormalizerInterface $normalizer): void
     {
         if (!$this->has($normalizer::class)) {
             $this->normalizers[] = $normalizer;
         }
     }
 
-    /** @return NormalizerInterface[] */
+    /** @return NormalizerInterface|DenormalizerInterface[] */
     public function all(): array
     {
         return $this->normalizers;
     }
 
-    /** @psalm-param class-string<NormalizerInterface> $className */
+    /** @psalm-param class-string<NormalizerInterface|DenormalizerInterface> $className */
     public function has(string $className): bool
     {
         foreach ($this->normalizers as $normalizer) {

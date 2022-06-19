@@ -31,12 +31,12 @@ final class SerializerConfig extends InjectableConfig
      */
     public function getNormalizers(bool $isProduction): array
     {
-        return $this->config['serializers'] === [] ?
+        return $this->config['normalizers'] === [] ?
             $this->getDefaultNormalizers($isProduction) :
-            $this->config['serializers'];
+            $this->config['normalizers'];
     }
 
-    private function getDefaultEncoders(): array
+    public function getDefaultEncoders(): array
     {
         return [
             new Encoder\JsonEncoder(),
@@ -46,7 +46,7 @@ final class SerializerConfig extends InjectableConfig
         ];
     }
 
-    private function getDefaultNormalizers(bool $isProduction): array
+    public function getDefaultNormalizers(bool $isProduction): array
     {
         $normalizers = [
             new Normalizer\UnwrappingDenormalizer(),

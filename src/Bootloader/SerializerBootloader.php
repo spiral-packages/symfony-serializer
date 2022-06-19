@@ -6,10 +6,11 @@ namespace Spiral\Serializer\Symfony\Bootloader;
 
 use Spiral\Boot\Bootloader\Bootloader;
 use Spiral\Boot\Environment\AppEnvironment;
+use Spiral\Config\ConfiguratorInterface;
 use Spiral\Core\Container;
 use Spiral\Core\Container\Autowire;
 use Spiral\Serializer\Bootloader\SerializerBootloader as SpiralSerializerBootloader;
-use Spiral\Serializer\SerializerRegistry;
+use Spiral\Serializer\SerializerRegistryInterface;
 use Spiral\Serializer\Symfony\Config\SerializerConfig;
 use Spiral\Serializer\Symfony\EncodersRegistry;
 use Spiral\Serializer\Symfony\EncodersRegistryInterface;
@@ -17,6 +18,7 @@ use Spiral\Serializer\Symfony\NormalizersRegistry;
 use Spiral\Serializer\Symfony\NormalizersRegistryInterface;
 use Spiral\Serializer\Symfony\Serializer;
 use Symfony\Component\Serializer\Encoder\EncoderInterface;
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Serializer as SymfonySerializer;
 use Symfony\Component\Yaml\Dumper;
@@ -38,8 +40,18 @@ final class SerializerBootloader extends Bootloader
     ) {
     }
 
+    public function init(ConfiguratorInterface $configs): void
+    {
+        $config = new SerializerConfig();
+
+        $configs->setDefaults(SerializerConfig::CONFIG, [
+            'normalizers' => $config->getDefaultNormalizers($this->environment->isProduction()),
+            'encoders' => $config->getDefaultEncoders()
+        ]);
+    }
+
     public function boot(
-        SerializerRegistry $registry,
+        SerializerRegistryInterface $registry,
         NormalizersRegistryInterface $normalizers,
         EncodersRegistryInterface $encoders
     ): void {
@@ -47,7 +59,7 @@ final class SerializerBootloader extends Bootloader
     }
 
     private function configureSerializer(
-        SerializerRegistry $registry,
+        SerializerRegistryInterface $registry,
         NormalizersRegistryInterface $normalizers,
         EncodersRegistryInterface $encoders
     ): void {
@@ -65,8 +77,9 @@ final class SerializerBootloader extends Bootloader
     private function initNormalizersRegistry(SerializerConfig $config): NormalizersRegistryInterface
     {
         return new NormalizersRegistry(
-            \array_map(static fn (string|Autowire|NormalizerInterface $normalizer) => match (true) {
+            \array_map(static fn (mixed $normalizer) => match (true) {
                 $normalizer instanceof NormalizerInterface => $normalizer,
+                $normalizer instanceof DenormalizerInterface => $normalizer,
                 $normalizer instanceof Autowire => $normalizer->resolve($this->container),
                 default => $this->container->get($normalizer)
             }, $config->getNormalizers($this->environment->isProduction()))
