@@ -25,13 +25,12 @@ class NormalizersRegistry implements NormalizersRegistryInterface
         }
     }
 
-    /** @return NormalizerInterface|DenormalizerInterface[] */
     public function all(): array
     {
         return $this->normalizers;
     }
 
-    /** @psalm-param class-string<NormalizerInterface|DenormalizerInterface> $className */
+    /** @psalm-param class-string $className */
     public function has(string $className): bool
     {
         foreach ($this->normalizers as $normalizer) {

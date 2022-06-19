@@ -11,9 +11,8 @@ interface NormalizersRegistryInterface
 {
     public function register(NormalizerInterface|DenormalizerInterface $normalizer): void;
 
-    /** @return NormalizerInterface|DenormalizerInterface[] */
     public function all(): array;
 
-    /** @psalm-param class-string<NormalizerInterface|DenormalizerInterface> $className */
+    /** @psalm-param class-string $className */
     public function has(string $className): bool;
 }
