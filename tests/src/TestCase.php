@@ -1,6 +1,9 @@
 <?php
 
-namespace VendorName\Skeleton\Tests;
+namespace Spiral\SymfonySerializer\Tests;
+
+use Spiral\Boot\Bootloader\ConfigurationBootloader;
+use Spiral\Serializer\Symfony\Bootloader\SerializerBootloader;
 
 class TestCase extends \Spiral\Testing\TestCase
 {
@@ -12,8 +15,8 @@ class TestCase extends \Spiral\Testing\TestCase
     public function defineBootloaders(): array
     {
         return [
-            \Spiral\Boot\Bootloader\ConfigurationBootloader::class,
-            \VendorName\Skeleton\SkeletonBootloader::class,
+            ConfigurationBootloader::class,
+            SerializerBootloader::class,
             // ...
         ];
     }

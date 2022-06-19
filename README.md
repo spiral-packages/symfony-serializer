@@ -1,35 +1,24 @@
-# :package_description
+# Symfony serializer bridge for Spiral Framework
 
-[![PHP](https://img.shields.io/packagist/php-v/:vendor_slug/:package_slug.svg?style=flat-square)](https://packagist.org/packages/:vendor_slug/:package_slug)
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/:vendor_slug/:package_slug.svg?style=flat-square)](https://packagist.org/packages/:vendor_slug/:package_slug)
-[![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/:vendor_slug/:package_slug/run-tests?label=tests&style=flat-square)](https://github.com/:vendor_slug/:package_slug/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/:vendor_slug/:package_slug.svg?style=flat-square)](https://packagist.org/packages/:vendor_slug/:package_slug)
-<!--delete-->
----
-This repo can be used to scaffold a Spiral Framework package. Follow these steps to get started:
-
-1. Press the "Use template" button at the top of this repo to create a new repo with the contents of this skeleton.
-2. Run `php ./configure.php` to run a script that will replace all placeholders throughout all the files.
----
-<!--/delete-->
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
-
+[![PHP](https://img.shields.io/packagist/php-v/spiral-packages/symfony-serializer.svg?style=flat-square)](https://packagist.org/packages/spiral-packages/symfony-serializer)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/spiral-packages/symfony-serializer.svg?style=flat-square)](https://packagist.org/packages/spiral-packages/symfony-serializer)
+[![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/spiral-packages/symfony-serializer/run-tests?label=tests&style=flat-square)](https://github.com/spiral-packages/symfony-serializer/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![Total Downloads](https://img.shields.io/packagist/dt/spiral-packages/symfony-serializer.svg?style=flat-square)](https://packagist.org/packages/spiral-packages/symfony-serializer)
 
 ## Requirements
 
 Make sure that your server is configured with following PHP version and extensions:
 
 - PHP 8.1+
-- Spiral framework 3.0+
-
-
+- Spiral framework ^3.0
+- Symfony Serializer component ^5.4 || ^6.0
 
 ## Installation
 
 You can install the package via composer:
 
 ```bash
-composer require :vendor_slug/:package_slug
+composer require spiral-packages/symfony-serializer
 ```
 
 After package install you need to register bootloader from the package.
@@ -37,7 +26,7 @@ After package install you need to register bootloader from the package.
 ```php
 protected const LOAD = [
     // ...
-    \VendorName\Skeleton\Bootloader\SkeletonBootloader::class,
+    \Spiral\Serializer\Symfony\Bootloader\SerializerBootloader::class,
 ];
 ```
 
@@ -61,11 +50,6 @@ Please see [CONTRIBUTING](.github/CONTRIBUTING.md) for details.
 ## Security Vulnerabilities
 
 Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
-
-## Credits
-
-- [:author_name](https://github.com/:author_username)
-- [All Contributors](../../contributors)
 
 ## License
 
