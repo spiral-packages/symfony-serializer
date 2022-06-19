@@ -8,19 +8,24 @@ use Spiral\Serializer\Serializer\JsonSerializer;
 use Spiral\Serializer\Serializer\PhpSerializer;
 use Spiral\Serializer\SerializerInterface;
 use Spiral\Serializer\Symfony\Exception\UnsupportedTypeException;
-use Symfony\Component\Serializer\Serializer as SymfonySerializer;
+use Symfony\Component\Serializer\SerializerInterface as SymfonySerializerInterface;
 
-class Serializer implements SerializerInterface
+class Serializer implements SerializerInterface, SymfonySerializerInterface
 {
     public function __construct(
-        private readonly SymfonySerializer $serializer,
+        private readonly SymfonySerializerInterface $serializer,
         private readonly string $format
     ) {
     }
 
-    public function serialize(mixed $payload): string|\Stringable
+    public function serialize(mixed $payload, ?string $format = null, array $context = []): string
     {
-        return $this->serializer->serialize($payload, $this->format);
+        return $this->serializer->serialize($payload, $format ?? $this->format);
+    }
+
+    public function deserialize(mixed $data, string $type, string $format, array $context = []): mixed
+    {
+        return $this->serializer->deserialize($data, $type, $format, $context);
     }
 
     public function unserialize(

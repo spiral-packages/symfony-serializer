@@ -21,6 +21,7 @@ use Symfony\Component\Serializer\Encoder\EncoderInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Serializer as SymfonySerializer;
+use Symfony\Component\Serializer\SerializerInterface as SymfonySerializerInterface;
 use Symfony\Component\Yaml\Dumper;
 
 final class SerializerBootloader extends Bootloader
@@ -28,6 +29,7 @@ final class SerializerBootloader extends Bootloader
     protected const SINGLETONS = [
         NormalizersRegistryInterface::class => [self::class, 'initNormalizersRegistry'],
         EncodersRegistryInterface::class => [self::class, 'initEncodersRegistry'],
+        SymfonySerializerInterface::class => [self::class, 'initSymfonySerializer'],
     ];
 
     protected const DEPENDENCIES = [
@@ -50,27 +52,28 @@ final class SerializerBootloader extends Bootloader
         ]);
     }
 
-    public function boot(
-        SerializerRegistryInterface $registry,
+    public function boot(SerializerRegistryInterface $registry, SymfonySerializerInterface $serializer): void
+    {
+        $this->configureSerializer($registry, $serializer);
+    }
+
+    private function initSymfonySerializer(
         NormalizersRegistryInterface $normalizers,
         EncodersRegistryInterface $encoders
-    ): void {
-        $this->configureSerializer($registry, $normalizers, $encoders);
+    ): SymfonySerializer {
+        return new SymfonySerializer($normalizers->all(), $encoders->all());
     }
 
     private function configureSerializer(
         SerializerRegistryInterface $registry,
-        NormalizersRegistryInterface $normalizers,
-        EncodersRegistryInterface $encoders
+        SymfonySerializerInterface $serializer
     ): void {
-        $symfonySerializer = new SymfonySerializer($normalizers->all(), $encoders->all());
-
-        $registry->register('json', new Serializer($symfonySerializer, 'json'));
-        $registry->register('csv', new Serializer($symfonySerializer, 'csv'));
-        $registry->register('xml', new Serializer($symfonySerializer, 'xml'));
+        $registry->register('json', new Serializer($serializer, 'json'));
+        $registry->register('csv', new Serializer($serializer, 'csv'));
+        $registry->register('xml', new Serializer($serializer, 'xml'));
 
         if (\class_exists(Dumper::class)) {
-            $registry->register('yaml', new Serializer($symfonySerializer, 'yaml'));
+            $registry->register('yaml', new Serializer($serializer, 'yaml'));
         }
     }
 
