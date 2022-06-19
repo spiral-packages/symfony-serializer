@@ -11,7 +11,8 @@ Make sure that your server is configured with following PHP version and extensio
 
 - PHP 8.1+
 - Spiral framework ^3.0
-- Symfony Serializer component ^5.4 || ^6.0
+- Symfony Serializer Component ^5.4 || ^6.0
+- Symfony PropertyAccess Component ^5.4 || ^6.0
 
 ## Installation
 
