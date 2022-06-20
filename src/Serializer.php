@@ -18,9 +18,9 @@ class Serializer implements SerializerInterface
     ) {
     }
 
-    public function serialize(mixed $payload, ?string $format = null, array $context = []): string
+    public function serialize(mixed $payload, array $context = []): string
     {
-        return $this->serializer->serialize($payload, $format ?? $this->format);
+        return $this->serializer->serialize($payload, $this->format);
     }
 
     public function unserialize(

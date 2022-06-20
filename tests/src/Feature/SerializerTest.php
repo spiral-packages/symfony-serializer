@@ -14,7 +14,7 @@ final class SerializerTest extends TestCase
     {
         $manager = $this->getContainer()->get(SerializerManager::class);
 
-        $this->assertSame($expected, preg_replace('/\s+/', '', $manager->getSerializer($format)->serialize($payload)));
+        $this->assertSame($expected, preg_replace('/\s+/', '', $manager->serialize($payload, $format)));
     }
 
     public function testUnserialize(): void
