@@ -80,10 +80,9 @@ final class SerializerBootloader extends Bootloader
     private function initNormalizersRegistry(SerializerConfig $config): NormalizersRegistryInterface
     {
         return new NormalizersRegistry(
-            \array_map(static fn (mixed $normalizer) => match (true) {
+            \array_map(fn (mixed $normalizer) => match (true) {
                 $normalizer instanceof NormalizerInterface => $normalizer,
                 $normalizer instanceof DenormalizerInterface => $normalizer,
-                $normalizer instanceof Autowire => $normalizer->resolve($this->container),
                 default => $this->container->get($normalizer)
             }, $config->getNormalizers($this->environment->isProduction()))
         );
@@ -92,11 +91,9 @@ final class SerializerBootloader extends Bootloader
     private function initEncodersRegistry(SerializerConfig $config): EncodersRegistryInterface
     {
         return new EncodersRegistry(
-            \array_map(static fn (string|Autowire|EncoderInterface $encoder) => match (true) {
-                $encoder instanceof EncoderInterface => $encoder,
-                $encoder instanceof Autowire => $encoder->resolve($this->container),
-                default => $this->container->get($encoder)
-            }, $config->getEncoders())
+            \array_map(fn (string|Autowire|EncoderInterface $encoder) =>
+                $encoder instanceof EncoderInterface ? $encoder : $this->container->get($encoder),
+                $config->getEncoders())
         );
     }
 }
