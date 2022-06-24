@@ -8,7 +8,7 @@ final class UnsupportedTypeException extends \InvalidArgumentException
 {
     public function __construct()
     {
-        parent::__construct('Symfony Serializer supports the deserialization only to objects. Provide in the 
-        `$type` parameter the name of the class or object for the deserialization.');
+        parent::__construct('The Symfony Serializer only supports deserialization to a specific type. Parameter 
+        `$type` is required.');
     }
 }

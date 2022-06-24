@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Spiral\Serializer\Symfony;
 
-use Spiral\Serializer\Serializer\JsonSerializer;
-use Spiral\Serializer\Serializer\PhpSerializer;
 use Spiral\Serializer\SerializerInterface;
 use Spiral\Serializer\Symfony\Exception\UnsupportedTypeException;
 use Symfony\Component\Serializer\Serializer as SymfonySerializer;
@@ -28,11 +26,8 @@ class Serializer implements SerializerInterface
         object|string|null $type = null,
         array $context = []
     ): mixed {
-        // symfony supports deserialize only into objects
         if ($type === null) {
-            $serializer = $this->createNativeSerializer();
-
-            return $serializer ? $serializer->unserialize($payload) : throw new UnsupportedTypeException();
+            throw new UnsupportedTypeException();
         }
 
         return $this->serializer->deserialize(
@@ -84,14 +79,5 @@ class Serializer implements SerializerInterface
     public function supportsDecoding(string $format, array $context = []): bool
     {
         return $this->serializer->supportsDecoding($format, $context);
-    }
-
-    private function createNativeSerializer(): PhpSerializer|JsonSerializer|null
-    {
-        return match ($this->format) {
-            'json' => new JsonSerializer(),
-            'serializer' => new PhpSerializer(),
-            default => null,
-        };
     }
 }
