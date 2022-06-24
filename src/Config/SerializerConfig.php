@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace Spiral\Serializer\Symfony\Config;
 
+use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Component\Messenger\Transport\Serialization\Normalizer\FlattenExceptionNormalizer;
 use Symfony\Component\Serializer\Encoder;
+use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
+use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
+use Symfony\Component\Serializer\Mapping\Loader\LoaderInterface;
+use Symfony\Component\Serializer\NameConverter\MetadataAwareNameConverter;
 use Symfony\Component\Serializer\Normalizer;
 use Spiral\Core\InjectableConfig;
 
@@ -48,6 +53,8 @@ final class SerializerConfig extends InjectableConfig
 
     public function getDefaultNormalizers(bool $isProduction): array
     {
+        $factory = new ClassMetadataFactory($this->getMetadataLoader());
+
         $normalizers = [
             new Normalizer\UnwrappingDenormalizer(),
             new Normalizer\ProblemNormalizer(debug: $isProduction === false),
@@ -62,7 +69,7 @@ final class SerializerConfig extends InjectableConfig
             new Normalizer\BackedEnumNormalizer(),
             new Normalizer\DataUriNormalizer(),
             new Normalizer\ArrayDenormalizer(),
-            new Normalizer\ObjectNormalizer()
+            new Normalizer\ObjectNormalizer($factory, new MetadataAwareNameConverter($factory))
         ];
 
         // Normalizer from symfony/messenger, if exists
@@ -71,5 +78,10 @@ final class SerializerConfig extends InjectableConfig
         }
 
         return $normalizers;
+    }
+
+    public function getMetadataLoader(): LoaderInterface
+    {
+        return $this->config['metadataLoader'] ?? new AnnotationLoader(new AnnotationReader());
     }
 }

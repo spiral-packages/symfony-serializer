@@ -37,10 +37,13 @@ protected const LOAD = [
 > you don't need to register bootloader by yourself.
 
 ## Configuration
+The package is already configured by default, use these features only if you need to change the default configuration.
 
-The package provides the ability to configure the `normalizers` and `encoders` used by the Symfony Serializer component.
+The package provides the ability to configure the `normalizers`, `encoders` and `Symfony\Component\Serializer\Mapping\Loader\LoaderInterface`
+for `Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory` used by the Symfony Serializer component.
+
 Create a file `app/config/symfony-serializer.php`.
-Add the `normalizers` and `encoders` arrays with the `normalizers` and `encoders` you need. For example:
+Add the `normalizers`, `encoders`, `metadataLoader` parameters. For example:
 ```php
 <?php
 
@@ -72,7 +75,11 @@ return [
         new Encoder\CsvEncoder(),
         Encoder\XmlEncoder::class,
         new Autowire(Encoder\YamlEncoder::class),
-    ],      
+    ],
+    'metadataLoader' => new AnnotationLoader(new AnnotationReader()) // by default
+ //  Other available loaders: 
+ // 'metadataLoader' => new YamlFileLoader('/path/to/your/definition.yaml')
+ // 'metadataLoader' => new XmlFileLoader('/path/to/your/definition.xml')     
 ];
 ```
 
