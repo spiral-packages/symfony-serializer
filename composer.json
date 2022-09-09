@@ -22,8 +22,7 @@
         "phpunit/phpunit": "^9.5.20",
         "spiral/testing": "^2.0",
         "symfony/yaml": "^5.4 || ^6.0",
-        "vimeo/psalm": "^4.22",
-        "spiral/framework": "3.0.x-dev"
+        "vimeo/psalm": "^4.22"
     },
     "suggest": {
         "symfony/yaml": "For using the YamlEncoder."
