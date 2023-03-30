@@ -87,7 +87,7 @@ final class SerializerTest extends TestCase
             'xml'
         ];
         yield [
-            '{"id":1,"title":"Someproduct","price":100,"active":false,"product_views":5}',
+            '{"id":1,"title":"Someproduct","price":100.0,"active":false,"product_views":5}',
             new Product(1, 'Some product', 100, false, 5),
             'json'
         ];
