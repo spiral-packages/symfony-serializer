@@ -30,6 +30,7 @@ final class SerializerBootloader extends Bootloader
         NormalizersRegistryInterface::class => [self::class, 'initNormalizersRegistry'],
         EncodersRegistryInterface::class => [self::class, 'initEncodersRegistry'],
         SymfonySerializerInterface::class => [self::class, 'initSymfonySerializer'],
+        SymfonySerializer::class => SymfonySerializerInterface::class,
     ];
 
     protected const DEPENDENCIES = [
@@ -52,7 +53,7 @@ final class SerializerBootloader extends Bootloader
         ]);
     }
 
-    public function boot(SerializerRegistryInterface $registry, SymfonySerializerInterface $serializer): void
+    public function boot(SerializerRegistryInterface $registry, SymfonySerializer $serializer): void
     {
         $this->configureSerializer($registry, $serializer);
     }
@@ -66,7 +67,7 @@ final class SerializerBootloader extends Bootloader
 
     private function configureSerializer(
         SerializerRegistryInterface $registry,
-        SymfonySerializerInterface $serializer
+        SymfonySerializer $serializer
     ): void {
         $registry->register('json', new Serializer($serializer, 'json'));
         $registry->register('csv', new Serializer($serializer, 'csv'));

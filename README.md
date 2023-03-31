@@ -1,9 +1,11 @@
 # Symfony serializer bridge for Spiral Framework
 
-[![PHP](https://img.shields.io/packagist/php-v/spiral-packages/symfony-serializer.svg?style=flat-square)](https://packagist.org/packages/spiral-packages/symfony-serializer)
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/spiral-packages/symfony-serializer.svg?style=flat-square)](https://packagist.org/packages/spiral-packages/symfony-serializer)
-[![GitHub Tests Action Status](https://img.shields.io/github/workflow/status/spiral-packages/symfony-serializer/run-tests?label=tests&style=flat-square)](https://github.com/spiral-packages/symfony-serializer/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/spiral-packages/symfony-serializer.svg?style=flat-square)](https://packagist.org/packages/spiral-packages/symfony-serializer)
+[![PHP Version Require](https://poser.pugx.org/spiral-packages/symfony-serializer/require/php)](https://packagist.org/packages/spiral-packages/symfony-serializer)
+[![Latest Stable Version](https://poser.pugx.org/spiral-packages/symfony-serializer/v/stable)](https://packagist.org/packages/spiral-packages/symfony-serializer)
+[![phpunit](https://github.com/spiral-packages/symfony-serializer/actions/workflows/phpunit.yml/badge.svg)](https://github.com/spiral-packages/symfony-serializer/actions)
+[![psalm](https://github.com/spiral-packages/symfony-serializer/actions/workflows/psalm.yml/badge.svg)](https://github.com/spiral-packages/symfony-serializer/actions)
+[![Codecov](https://codecov.io/gh/spiral-packages/symfony-serializer/branch/master/graph/badge.svg)](https://codecov.io/gh/spiral-packages/symfony-serializer)
+[![Total Downloads](https://poser.pugx.org/spiral-packages/symfony-serializer/downloads)](https://packagist.org/packages/spiral-packages/symfony-serializer)
 
 ## Requirements
 
@@ -77,9 +79,9 @@ return [
         new Autowire(Encoder\YamlEncoder::class),
     ],
     'metadataLoader' => new AnnotationLoader(new AnnotationReader()) // by default
- //  Other available loaders: 
+ //  Other available loaders:
  // 'metadataLoader' => new YamlFileLoader('/path/to/your/definition.yaml')
- // 'metadataLoader' => new XmlFileLoader('/path/to/your/definition.xml')     
+ // 'metadataLoader' => new XmlFileLoader('/path/to/your/definition.xml')
 ];
 ```
 
@@ -88,7 +90,7 @@ Using with `Spiral\Serializer\SerializerManager`. For example:
 ```php
 use Spiral\Serializer\SerializerManager;
 
-$serializer = $this->container->get(SerializerManager::class); 
+$serializer = $this->container->get(SerializerManager::class);
 
 $result = $manager->serialize($payload, 'json');
 $result = $manager->serialize($payload, 'csv');
@@ -132,7 +134,7 @@ $result = $serializer->deserialize($payload, Post::class, 'yaml', $context);
 ```
 
 > **Note**
-> The `yaml` encoder requires the `symfony/yaml` package and is disabled when the package is not installed. 
+> The `yaml` encoder requires the `symfony/yaml` package and is disabled when the package is not installed.
 > Install the `symfony/yaml` package and the encoder will be automatically enabled.
 
 
