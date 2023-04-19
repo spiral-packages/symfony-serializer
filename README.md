@@ -12,7 +12,7 @@
 Make sure that your server is configured with following PHP version and extensions:
 
 - PHP 8.1+
-- Spiral framework ^3.0
+- Spiral framework ^3.7
 - Symfony Serializer Component ^5.4 || ^6.0
 - Symfony PropertyAccess Component ^5.4 || ^6.0
 
@@ -39,6 +39,7 @@ protected const LOAD = [
 > you don't need to register bootloader by yourself.
 
 ## Configuration
+
 The package is already configured by default, use these features only if you need to change the default configuration.
 
 The package provides the ability to configure the `normalizers`, `encoders` and `Symfony\Component\Serializer\Mapping\Loader\LoaderInterface`
@@ -46,6 +47,7 @@ for `Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory` used by 
 
 Create a file `app/config/symfony-serializer.php`.
 Add the `normalizers`, `encoders`, `metadataLoader` parameters. For example:
+
 ```php
 <?php
 
@@ -85,25 +87,44 @@ return [
 ];
 ```
 
+### EncodersRegistry and NormalizersRegistry
+
+The package provides `Spiral\Serializer\Symfony\EncodersRegistryInterface` and
+`Spiral\Serializer\Symfony\NormalizersRegistryInterface`. They contain **encoders** and **normalizers/denormalizers**.
+You can add your own **encoder** or **normalizer/denormalizer** to them by using the `register` method:
+
+```php
+public function boot(
+    NormalizersRegistryInterface $normalizersRegistry,
+    EncodersRegistryInterface $encodersRegistry
+): void {
+    // Add CustomNormalizer before ObjectNormalizer
+    $normalizersRegistry->register(normalizer: new CustomNormalizer(), priority: 699);
+
+    $encodersRegistry->register(new CustomEncoder());
+}
+```
+
 ## Usage
+
 Using with `Spiral\Serializer\SerializerManager`. For example:
 ```php
 use Spiral\Serializer\SerializerManager;
 
 $serializer = $this->container->get(SerializerManager::class);
 
-$result = $manager->serialize($payload, 'json');
-$result = $manager->serialize($payload, 'csv');
-$result = $manager->serialize($payload, 'xml');
-$result = $manager->serialize($payload, 'yaml');
+$result = $manager->serialize($payload, 'symfony-json');
+$result = $manager->serialize($payload, 'symfony-csv');
+$result = $manager->serialize($payload, 'symfony-xm');
+$result = $manager->serialize($payload, 'symfony-yaml');
 
-$result = $manager->unserialize($payload, Post::class, 'json');
-$result = $manager->unserialize($payload, Post::class, 'csv');
-$result = $manager->unserialize($payload, Post::class, 'xml');
-$result = $manager->unserialize($payload, Post::class, 'yaml');
+$result = $manager->unserialize($payload, Post::class, 'symfony-json');
+$result = $manager->unserialize($payload, Post::class, 'symfony-csv');
+$result = $manager->unserialize($payload, Post::class, 'symfony-xm');
+$result = $manager->unserialize($payload, Post::class, 'symfony-yaml');
 
 // Getting a serializer `Spiral\Serializer\Symfony\Serializer`
-$serializer = $manager->getSerializer('json');
+$serializer = $manager->getSerializer('symfony-json');
 
 // $serializer->serialize($payload, $context);
 // $serializer->unserialize($payload, $type, $context);
@@ -122,21 +143,20 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 $serializer = $this->container->get(SerializerInterface::class);
 
-$result = $serializer->serialize($payload, 'json', $context);
-$result = $serializer->serialize($payload, 'csv', $context);
-$result = $serializer->serialize($payload, 'xml', $context);
-$result = $serializer->serialize($payload, 'yaml', $context);
+$result = $serializer->serialize($payload, 'symfony-json', $context);
+$result = $serializer->serialize($payload, 'symfony-csv', $context);
+$result = $serializer->serialize($payload, 'symfony-xm', $context);
+$result = $serializer->serialize($payload, 'symfony-yaml', $context);
 
-$result = $serializer->deserialize($payload, Post::class, 'json', $context);
-$result = $serializer->deserialize($payload, Post::class, 'csv', $context);
-$result = $serializer->deserialize($payload, Post::class, 'xml', $context);
-$result = $serializer->deserialize($payload, Post::class, 'yaml', $context);
+$result = $serializer->deserialize($payload, Post::class, 'symfony-json', $context);
+$result = $serializer->deserialize($payload, Post::class, 'symfony-csv', $context);
+$result = $serializer->deserialize($payload, Post::class, 'symfony-xm', $context);
+$result = $serializer->deserialize($payload, Post::class, 'symfony-yaml', $context);
 ```
 
 > **Note**
 > The `yaml` encoder requires the `symfony/yaml` package and is disabled when the package is not installed.
 > Install the `symfony/yaml` package and the encoder will be automatically enabled.
-
 
 ## Testing
 
