@@ -1,25 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.1/phpunit.xsd"
          bootstrap="vendor/autoload.php"
          backupGlobals="false"
-         backupStaticAttributes="false"
-         colors="true" verbose="false"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
+         colors="true"
          processIsolation="false"
          stopOnFailure="false"
          stopOnError="false"
-         stderr="true">
-  <coverage processUncoveredFiles="true">
-    <include>
-      <directory suffix=".php">app/src</directory>
-    </include>
-  </coverage>
+         stderr="true"
+         cacheDirectory=".phpunit.cache"
+         backupStaticProperties="false">
+  <coverage/>
   <testsuites>
-    <testsuite name="Symfony serializer Bridge Test Suite">
+    <testsuite name="Symfony Serializer Bridge Test Suite">
       <directory>./tests/</directory>
     </testsuite>
   </testsuites>
+  <source>
+    <include>
+      <directory suffix=".php">app/src</directory>
+    </include>
+  </source>
 </phpunit>

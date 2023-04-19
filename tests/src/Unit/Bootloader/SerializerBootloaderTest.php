@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Spiral\Serializer\Symfony\Tests\Unit\Bootloader;
 
-use Spiral\Boot\Environment\AppEnvironment;
+use Doctrine\Common\Annotations\AnnotationReader;
+use Spiral\Boot\Environment;
+use Spiral\Boot\EnvironmentInterface;
 use Spiral\Core\Container;
 use Spiral\Core\Container\Autowire;
 use Spiral\Serializer\Symfony\Bootloader\SerializerBootloader;
@@ -15,6 +17,8 @@ use Spiral\Serializer\Symfony\Tests\Unit\TestCase;
 use Symfony\Component\Serializer\Encoder\CsvEncoder;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
+use Symfony\Component\Serializer\Mapping\Loader\LoaderInterface;
 use Symfony\Component\Serializer\Normalizer\JsonSerializableNormalizer;
 use Symfony\Component\Serializer\Normalizer\UidNormalizer;
 use Symfony\Component\Serializer\Normalizer\UnwrappingDenormalizer;
@@ -23,7 +27,7 @@ final class SerializerBootloaderTest extends TestCase
 {
     public function testConfigureEncoders(): void
     {
-        $bootloader = new SerializerBootloader(AppEnvironment::Local, new Container());
+        $bootloader = new SerializerBootloader(new Container());
 
         $ref = new \ReflectionMethod($bootloader, 'initEncodersRegistry');
 
@@ -44,7 +48,11 @@ final class SerializerBootloaderTest extends TestCase
 
     public function testConfigureNormalizers(): void
     {
-        $bootloader = new SerializerBootloader(AppEnvironment::Local, new Container());
+        $container = new Container();
+        $container->bind(LoaderInterface::class, new AnnotationLoader(new AnnotationReader()));
+        $container->bind(EnvironmentInterface::class, new Environment());
+
+        $bootloader = new SerializerBootloader($container);
 
         $ref = new \ReflectionMethod($bootloader, 'initNormalizersRegistry');
 
@@ -55,7 +63,7 @@ final class SerializerBootloaderTest extends TestCase
                 new UidNormalizer(),
                 new Autowire(JsonSerializableNormalizer::class)
             ]
-        ]));
+        ]), $container);
 
         $this->assertCount(3, $registry->all());
         $this->assertTrue($registry->has(UnwrappingDenormalizer::class));

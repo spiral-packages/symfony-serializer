@@ -5,40 +5,58 @@ declare(strict_types=1);
 namespace Spiral\Serializer\Symfony;
 
 use Symfony\Component\Serializer\Encoder\EncoderInterface;
+use Symfony\Component\Serializer\Encoder;
+use Symfony\Component\Yaml\Dumper;
 
 class EncodersRegistry implements EncodersRegistryInterface
 {
+    /** @var array<class-string, EncoderInterface>  */
     private array $encoders = [];
 
+    /**
+     * @param EncoderInterface[] $encoders
+     */
     public function __construct(array $encoders = [])
     {
-        foreach ($encoders as $encoder) {
-            $this->register($encoder);
+        if ($encoders === []) {
+            $this->registerDefaultEncoders();
+        } else {
+            foreach ($encoders as $encoder) {
+                $this->register($encoder);
+            }
         }
     }
 
     public function register(EncoderInterface $encoder): void
     {
         if (!$this->has($encoder::class)) {
-            $this->encoders[] = $encoder;
+            $this->encoders[$encoder::class] = $encoder;
         }
     }
 
-    /** @return EncoderInterface[] */
+    /**
+     * @return EncoderInterface[]
+     */
     public function all(): array
     {
-        return $this->encoders;
+        return \array_values($this->encoders);
     }
 
-    /** @psalm-param class-string<EncoderInterface> $className */
+    /**
+     * @psalm-param class-string<EncoderInterface> $className
+     */
     public function has(string $className): bool
     {
-        foreach ($this->encoders as $encoder) {
-            if ($className === $encoder::class) {
-                return true;
-            }
-        }
+        return isset($this->encoders[$className]);
+    }
 
-        return false;
+    private function registerDefaultEncoders(): void
+    {
+        $this->register(new Encoder\JsonEncoder());
+        $this->register(new Encoder\CsvEncoder());
+        $this->register(new Encoder\XmlEncoder());
+        if (\class_exists(Dumper::class)) {
+            $this->register(new Encoder\YamlEncoder());
+        }
     }
 }

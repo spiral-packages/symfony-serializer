@@ -12,9 +12,6 @@ use Spiral\Serializer\Symfony\NormalizersRegistry;
 use Spiral\Serializer\Symfony\NormalizersRegistryInterface;
 use Spiral\Serializer\Symfony\Serializer;
 use Spiral\Serializer\Symfony\Tests\Feature\TestCase;
-use Symfony\Component\Serializer\Encoder\EncoderInterface;
-use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 final class SerializerBootloaderTest extends TestCase
 {
@@ -33,25 +30,19 @@ final class SerializerBootloaderTest extends TestCase
         $config = $this->getConfig(SerializerConfig::CONFIG);
 
         $this->assertIsArray($config['normalizers']);
-        $this->assertCount(14, $config['normalizers']);
-        foreach ($config['normalizers'] as $normalizer) {
-            $this->assertTrue($normalizer instanceof NormalizerInterface || $normalizer instanceof DenormalizerInterface);
-        }
+        $this->assertSame([], $config['normalizers']);
 
         $this->assertIsArray($config['encoders']);
-        $this->assertCount(4, $config['encoders']);
-        foreach ($config['encoders'] as $encoder) {
-            $this->assertInstanceOf(EncoderInterface::class, $encoder);
-        }
+        $this->assertSame([], $config['encoders']);
     }
 
     public function testSerializerIsConfigured(): void
     {
         $manager = $this->getContainer()->get(SerializerManager::class);
 
-        $this->assertInstanceOf(Serializer::class, $manager->getSerializer('json'));
-        $this->assertInstanceOf(Serializer::class, $manager->getSerializer('csv'));
-        $this->assertInstanceOf(Serializer::class, $manager->getSerializer('xml'));
-        $this->assertInstanceOf(Serializer::class, $manager->getSerializer('yaml'));
+        $this->assertInstanceOf(Serializer::class, $manager->getSerializer('symfony-json'));
+        $this->assertInstanceOf(Serializer::class, $manager->getSerializer('symfony-csv'));
+        $this->assertInstanceOf(Serializer::class, $manager->getSerializer('symfony-xml'));
+        $this->assertInstanceOf(Serializer::class, $manager->getSerializer('symfony-yaml'));
     }
 }
