@@ -4,8 +4,20 @@
 [![Latest Stable Version](https://poser.pugx.org/spiral-packages/symfony-serializer/v/stable)](https://packagist.org/packages/spiral-packages/symfony-serializer)
 [![phpunit](https://github.com/spiral-packages/symfony-serializer/actions/workflows/phpunit.yml/badge.svg)](https://github.com/spiral-packages/symfony-serializer/actions)
 [![psalm](https://github.com/spiral-packages/symfony-serializer/actions/workflows/psalm.yml/badge.svg)](https://github.com/spiral-packages/symfony-serializer/actions)
-[![Codecov](https://codecov.io/gh/spiral-packages/symfony-serializer/branch/master/graph/badge.svg)](https://codecov.io/gh/spiral-packages/symfony-serializer)
 [![Total Downloads](https://poser.pugx.org/spiral-packages/symfony-serializer/downloads)](https://packagist.org/packages/spiral-packages/symfony-serializer)
+
+This package provides an extension to the default list of serializers in Spiral Framework, allowing you to easily
+serialize and deserialize objects into various formats such as `JSON`, `XML`, `CSV`, and `YAML`.
+
+> **Note**
+> Read more about spiral/serializer component in the
+> official [documentation](https://spiral.dev/docs/advanced-serializer).
+
+If you are building a REST API or working with queues, this package will be especially useful as it allows you to use
+objects as payload instead of simple arrays.
+
+This documentation will guide you through the installation process and provide examples of how to use the package to
+serialize and deserialize your objects.
 
 ## Requirements
 
@@ -40,19 +52,21 @@ protected const LOAD = [
 
 ## Configuration
 
-The package is already configured by default, use these features only if you need to change the default configuration.
+The package comes with default configurations for `normalizers`, `encoders`, and `metadataLoader`. However, you can
+change these configurations based on your project's requirements.
 
-The package provides the ability to configure the `normalizers`, `encoders` and `Symfony\Component\Serializer\Mapping\Loader\LoaderInterface`
-for `Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory` used by the Symfony Serializer component.
+**There are two ways to configure the package:**
 
-Create a file `app/config/symfony-serializer.php`.
-Add the `normalizers`, `encoders`, `metadataLoader` parameters. For example:
+### Config file
+
+You can create a configuration file `app/config/symfony-serializer.php` and define `normalizers`, `encoders`,
+and `Symfony\Component\Serializer\Mapping\Loader\LoaderInterface`
+for `Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory` used by the Symfony Serializer component
+parameters to extend the default configuration.
+
+**Here is an example of the configuration file:**
 
 ```php
-<?php
-
-declare(strict_types=1);
-
 use Symfony\Component\Serializer\Encoder;
 use Symfony\Component\Serializer\Normalizer;
 use Spiral\Core\Container\Autowire;
@@ -87,76 +101,198 @@ return [
 ];
 ```
 
-### EncodersRegistry and NormalizersRegistry
+### Bootloader
 
-The package provides `Spiral\Serializer\Symfony\EncodersRegistryInterface` and
-`Spiral\Serializer\Symfony\NormalizersRegistryInterface`. They contain **encoders** and **normalizers/denormalizers**.
-You can add your own **encoder** or **normalizer/denormalizer** to them by using the `register` method:
+`Spiral\Serializer\Symfony\EncodersRegistryInterface` and `Spiral\Serializer\Symfony\NormalizersRegistryInterface`
+provided by the package to add your own normalizers or encoders. You can register your own `normalizers` or `encoders`
+using the `register` method provided by these interfaces.
+
+**Here is an example:**
 
 ```php
-public function boot(
-    NormalizersRegistryInterface $normalizersRegistry,
-    EncodersRegistryInterface $encodersRegistry
-): void {
-    // Add CustomNormalizer before ObjectNormalizer
-    $normalizersRegistry->register(normalizer: new CustomNormalizer(), priority: 699);
+namespace App\Application\Bootloader;
 
-    $encodersRegistry->register(new CustomEncoder());
+use Spiral\Serializer\Symfony\EncodersRegistryInterface;
+use Spiral\Serializer\Symfony\NormalizersRegistryInterface;
+use Spiral\Boot\Bootloader\Bootloader;
+
+final class AppBootloader extends Bootloader
+{
+    public function boot(
+        NormalizersRegistryInterface $normalizersRegistry,
+        EncodersRegistryInterface $encodersRegistry,
+    ): void {
+        // Add CustomNormalizer before ObjectNormalizer
+        $normalizersRegistry->register(normalizer: new CustomNormalizer(), priority: 699);
+
+        $encodersRegistry->register(new CustomEncoder());
+    }
 }
 ```
 
 ## Usage
 
-Using with `Spiral\Serializer\SerializerManager`. For example:
+The package provides a list of serializers that can be used to serialize and deserialize objects.
+
+The serializers available in this package are: `symfony-json`, `symfony-csv`, `symfony-xml`, `symfony-yaml`.
+
+> **Warning**
+> The `yaml` encoder requires the `symfony/yaml` package and is disabled when the package is not installed.
+> Install the `symfony/yaml` package and the encoder will be automatically enabled.
+
+**Here are several ways to use these serializers:**
+
+### 1. Set a default serializer
+
+You can set a desired Symfony serializer as the default application serializer by setting
+the `DEFAULT_SERIALIZER_FORMAT` environment variable.
+
+```dotenv
+DEFAULT_SERIALIZER_FORMAT=symfony-json
+```
+
+Once the default serializer is set, you can request the `Spiral\Serializer\SerializerInterface` from the container and
+use it to serialize and deserialize objects.
+
+**Here's an example:**
+
+```php
+use Spiral\Serializer\SerializerInterface;
+use App\Repository\PostRepository;
+
+finalclass PostController
+{
+    public function __construct(
+        private readonly SerializerInterface $serializer,
+        private readonly PostRepository $repository,
+    ) {}
+
+    public function show(string $postId): string
+    {
+        $post = $this->repository->find($postId);
+
+        return $this->serializer->serialize($post);
+    }
+}
+```
+
+### 2. Using with the Serializer Manager
+
+You can request a desired serializer from `Spiral\Serializer\SerializerManager` by its name. Once you have the
+serializer, you can use it to serialize and deserialize objects.
+
+**Here's an example:**
+
 ```php
 use Spiral\Serializer\SerializerManager;
+use Spiral\Serializer\SerializerInterface;
+use App\Repository\PostRepository;
 
-$serializer = $this->container->get(SerializerManager::class);
+final class PostController
+{
+    private readonly SerializerInterface $serializer,
 
-$result = $manager->serialize($payload, 'symfony-json');
-$result = $manager->serialize($payload, 'symfony-csv');
-$result = $manager->serialize($payload, 'symfony-xm');
-$result = $manager->serialize($payload, 'symfony-yaml');
+    public function __construct(
+        SerializerManager $manager,
+        private readonly PostRepository $repository,
+    ) {
+        $this->serializer = $manager->getSerializer('symfony-json');
+    }
 
-$result = $manager->unserialize($payload, Post::class, 'symfony-json');
-$result = $manager->unserialize($payload, Post::class, 'symfony-csv');
-$result = $manager->unserialize($payload, Post::class, 'symfony-xm');
-$result = $manager->unserialize($payload, Post::class, 'symfony-yaml');
+    public function show(string $postId): string
+    {
+        $post = $this->repository->find($postId);
 
-// Getting a serializer `Spiral\Serializer\Symfony\Serializer`
-$serializer = $manager->getSerializer('symfony-json');
-
-// $serializer->serialize($payload, $context);
-// $serializer->unserialize($payload, $type, $context);
-// $serializer->normalize($data, $format, $context);
-// $serializer->denormalize($data, $type, $format, $context);
-// $serializer->supportsNormalization($data, $format, $context);
-// $serializer->supportsDenormalization($data, $type, $format, $context);
-// $serializer->encode($data, $format, $context);
-// $serializer->decode($data, $format, $context);
-// $serializer->supportsEncoding($format, $context);
-// $serializer->supportsDecoding($format, $context);
+        return $this->serializer->serialize($post);
+    }
+}
 ```
-Using with `Symfony\Component\Serializer\SerializerInterface`. For example:
+
+Alternatively, you can use the `serialize` and `unserialize` methods of the manager class:
+
+```php
+use Psr\Container\ContainerInterface;
+use Spiral\Serializer\SerializerManager;
+use App\Repository\PostRepository;
+use App\Entity\Post;
+
+/** @var PostRepository $repository */
+$post = $repository->find($postId);
+/** @var ContainerInterface $container */
+$serializer = $container->get(SerializerManager::class);
+
+$serializedString = $manager->serialize($post , 'symfony-json');
+
+$post = $manager->unserialize($serializedString , Post::class, 'symfony-json');
+```
+
+### 3. Using with Symfony\Component\Serializer\SerializerInterface
+
+You can also use the Symfony Serializer directly by requesting the `Symfony\Component\Serializer\SerializerInterface`
+from the container. Once you have the serializer, you can use it to `serialize` and `deserialize` objects.
+
+**Here's an example:**
+
 ```php
 use Symfony\Component\Serializer\SerializerInterface;
 
 $serializer = $this->container->get(SerializerInterface::class);
 
 $result = $serializer->serialize($payload, 'symfony-json', $context);
-$result = $serializer->serialize($payload, 'symfony-csv', $context);
-$result = $serializer->serialize($payload, 'symfony-xm', $context);
-$result = $serializer->serialize($payload, 'symfony-yaml', $context);
-
 $result = $serializer->deserialize($payload, Post::class, 'symfony-json', $context);
-$result = $serializer->deserialize($payload, Post::class, 'symfony-csv', $context);
-$result = $serializer->deserialize($payload, Post::class, 'symfony-xm', $context);
-$result = $serializer->deserialize($payload, Post::class, 'symfony-yaml', $context);
 ```
 
-> **Note**
-> The `yaml` encoder requires the `symfony/yaml` package and is disabled when the package is not installed.
-> Install the `symfony/yaml` package and the encoder will be automatically enabled.
+### Additional methods
+
+Symfony Serializer Manager provides additional methods to work with data:
+
+- **normalize**: This method takes in `data` and a `format` and returns a value that represents the normalized data. The
+  context parameter can also be passed to control the normalization process.
+
+- **denormalize**: This method takes in `data`, a `type`, a `format`, and a `context`, and returns an object that
+  represents the denormalized data.
+
+- **supportsNormalization**: This method takes in `data`, a `format`, and a `context`, and returns a `boolean`
+  indicating whether the given data can be normalized by the serializer.
+
+- **supportsDenormalization**: This method takes in `data`, a `type`, a `format`, and a `context`, and returns a
+  `boolean` indicating whether the given data can be denormalized by the serializer.
+
+- **encode**: This method takes in `data`, a `format`, and a `context`, and returns a `string` that represents the
+  encoded data.
+
+- **decode**: This method takes in `data`, a `format`, and a `context`, and returns a `value` that represents the
+  decoded data.
+
+- **supportsEncoding**: This method takes in a `format` and a `context`, and returns a `boolean` indicating whether the
+  given format can be used to encode data by the serializer.
+
+- **supportsDecoding**: This method takes in a `format` and a `context`, and returns a `boolean` indicating whether the
+  given format can be used to decode data by the serializer.
+
+```php
+use Spiral\Serializer\SerializerManager;
+
+$manager = $this->container->get(SerializerManager::class);
+
+// Getting a serializer `Spiral\Serializer\Symfony\Serializer`
+$serializer = $manager->getSerializer('symfony-json');
+
+$serializer->normalize($data, $format, $context);
+$serializer->denormalize($data, $type, $format, $context);
+
+$serializer->supportsNormalization($data, $format, $context);
+$serializer->supportsDenormalization($data, $type, $format, $context);
+
+$serializer->encode($data, $format, $context);
+$serializer->decode($data, $format, $context);
+
+$serializer->supportsEncoding($format, $context);
+$serializer->supportsDecoding($format, $context);
+```
+
+These methods provide additional flexibility for working with different data formats and can be useful in certain
+scenarios.
 
 ## Testing
 
