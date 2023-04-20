@@ -272,7 +272,7 @@ $serializedString = $manager->serialize($post , 'symfony-json');
 $post = $manager->unserialize($serializedString , Post::class, 'symfony-json');
 ```
 
-### 3. Using with Symfony\Component\Serializer\SerializerInterface
+### 3. Using with Symfony Serializer
 
 You can also use the Symfony Serializer directly by requesting the `Symfony\Component\Serializer\SerializerInterface`
 from the container. Once you have the serializer, you can use it to `serialize` and `deserialize` objects.
