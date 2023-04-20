@@ -154,13 +154,13 @@ DEFAULT_SERIALIZER_FORMAT=symfony-json
 Once the default serializer is set, you can request the `Spiral\Serializer\SerializerInterface` from the container and
 use it to serialize and deserialize objects.
 
-**Here's an example:**
+**Serialization:**
 
 ```php
 use Spiral\Serializer\SerializerInterface;
 use App\Repository\PostRepository;
 
-finalclass PostController
+final class PostController
 {
     public function __construct(
         private readonly SerializerInterface $serializer,
@@ -176,12 +176,33 @@ finalclass PostController
 }
 ```
 
+**Deserialization:**
+
+```php
+use App\Entity\Post;use Spiral\Serializer\SerializerInterface;
+
+final class PostService
+{
+    public function __construct(
+        private readonly SerializerInterface $serializer,
+        private readonly HttpClient $http,
+    ) {}
+
+    public function show(string $postId): Post
+    {
+        $json = $this->http->get('https://example.com/posts/' . $postId);
+
+        return $this->serializer->unserialize($json, Post::class);
+    }
+}
+```
+
 ### 2. Using with the Serializer Manager
 
 You can request a desired serializer from `Spiral\Serializer\SerializerManager` by its name. Once you have the
 serializer, you can use it to serialize and deserialize objects.
 
-**Here's an example:**
+**Serialization:**
 
 ```php
 use Spiral\Serializer\SerializerManager;
@@ -190,7 +211,7 @@ use App\Repository\PostRepository;
 
 final class PostController
 {
-    private readonly SerializerInterface $serializer,
+    private readonly SerializerInterface $serializer;
 
     public function __construct(
         SerializerManager $manager,
@@ -204,6 +225,31 @@ final class PostController
         $post = $this->repository->find($postId);
 
         return $this->serializer->serialize($post);
+    }
+}
+```
+
+**Deserialization:**
+
+```php
+use App\Entity\Post;use Spiral\Serializer\SerializerInterface;
+
+final class PostService
+{
+    private readonly SerializerInterface $serializer;
+
+    public function __construct(
+        SerializerManager $manager,
+        private readonly HttpClient $http,
+    ) {
+        $this->serializer = $manager->getSerializer('symfony-json');
+    }
+
+    public function show(string $postId): Post
+    {
+        $json = $this->http->get('https://example.com/posts/' . $postId);
+
+        return $this->serializer->unserialize($json, Post::class);
     }
 }
 ```
