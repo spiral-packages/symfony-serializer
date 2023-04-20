@@ -9,7 +9,10 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 interface NormalizersRegistryInterface
 {
-    public function register(NormalizerInterface|DenormalizerInterface $normalizer): void;
+    /**
+     * @param int<0, max> $priority
+     */
+    public function register(NormalizerInterface|DenormalizerInterface $normalizer, int $priority = 0): void;
 
     public function all(): array;
 

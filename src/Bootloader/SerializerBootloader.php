@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Spiral\Serializer\Symfony\Bootloader;
 
 use Spiral\Boot\Bootloader\Bootloader;
-use Spiral\Boot\Environment\AppEnvironment;
 use Spiral\Config\ConfiguratorInterface;
 use Spiral\Core\Container;
 use Spiral\Core\Container\Autowire;
+use Spiral\Core\FactoryInterface;
 use Spiral\Serializer\Bootloader\SerializerBootloader as SpiralSerializerBootloader;
 use Spiral\Serializer\SerializerRegistryInterface;
 use Spiral\Serializer\Symfony\Config\SerializerConfig;
@@ -18,6 +18,7 @@ use Spiral\Serializer\Symfony\NormalizersRegistry;
 use Spiral\Serializer\Symfony\NormalizersRegistryInterface;
 use Spiral\Serializer\Symfony\Serializer;
 use Symfony\Component\Serializer\Encoder\EncoderInterface;
+use Symfony\Component\Serializer\Mapping\Loader\LoaderInterface;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Serializer\Serializer as SymfonySerializer;
@@ -30,6 +31,7 @@ final class SerializerBootloader extends Bootloader
         NormalizersRegistryInterface::class => [self::class, 'initNormalizersRegistry'],
         EncodersRegistryInterface::class => [self::class, 'initEncodersRegistry'],
         SymfonySerializerInterface::class => [self::class, 'initSymfonySerializer'],
+        LoaderInterface::class => [self::class, 'initMappingLoader'],
         SymfonySerializer::class => SymfonySerializerInterface::class,
     ];
 
@@ -38,18 +40,15 @@ final class SerializerBootloader extends Bootloader
     ];
 
     public function __construct(
-        private readonly AppEnvironment $environment,
         private readonly Container $container
     ) {
     }
 
     public function init(ConfiguratorInterface $configs): void
     {
-        $config = new SerializerConfig();
-
         $configs->setDefaults(SerializerConfig::CONFIG, [
-            'normalizers' => $config->getDefaultNormalizers($this->environment->isProduction()),
-            'encoders' => $config->getDefaultEncoders()
+            'normalizers' => [],
+            'encoders' => []
         ]);
     }
 
@@ -69,24 +68,26 @@ final class SerializerBootloader extends Bootloader
         SerializerRegistryInterface $registry,
         SymfonySerializer $serializer
     ): void {
-        $registry->register('json', new Serializer($serializer, 'json'));
-        $registry->register('csv', new Serializer($serializer, 'csv'));
-        $registry->register('xml', new Serializer($serializer, 'xml'));
+        $registry->register('symfony-json', new Serializer($serializer, 'json'));
+        $registry->register('symfony-csv', new Serializer($serializer, 'csv'));
+        $registry->register('symfony-xml', new Serializer($serializer, 'xml'));
 
         if (\class_exists(Dumper::class)) {
-            $registry->register('yaml', new Serializer($serializer, 'yaml'));
+            $registry->register('symfony-yaml', new Serializer($serializer, 'yaml'));
         }
     }
 
-    private function initNormalizersRegistry(SerializerConfig $config): NormalizersRegistryInterface
-    {
-        return new NormalizersRegistry(
-            \array_map(fn (mixed $normalizer) => match (true) {
-                $normalizer instanceof NormalizerInterface => $normalizer,
-                $normalizer instanceof DenormalizerInterface => $normalizer,
-                default => $this->container->get($normalizer)
-            }, $config->getNormalizers($this->environment->isProduction()))
-        );
+    private function initNormalizersRegistry(
+        SerializerConfig $config,
+        FactoryInterface $factory
+    ): NormalizersRegistryInterface {
+        $normalizers = \array_map(fn (mixed $normalizer) => match (true) {
+            $normalizer instanceof NormalizerInterface => $normalizer,
+            $normalizer instanceof DenormalizerInterface => $normalizer,
+            default => $this->container->get($normalizer)
+        }, $config->getNormalizers());
+
+        return $factory->make(NormalizersRegistry::class, ['normalizers' => $normalizers]);
     }
 
     private function initEncodersRegistry(SerializerConfig $config): EncodersRegistryInterface
@@ -96,5 +97,10 @@ final class SerializerBootloader extends Bootloader
                 $encoder instanceof EncoderInterface ? $encoder : $this->container->get($encoder),
                 $config->getEncoders())
         );
+    }
+
+    private function initMappingLoader(SerializerConfig $config): LoaderInterface
+    {
+        return $config->getMetadataLoader();
     }
 }
