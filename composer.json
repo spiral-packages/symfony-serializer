@@ -49,7 +49,7 @@
     "extra": {
         "spiral": {
             "bootloaders": [
-                "Spiral\\SymfonySerializer\\Bootloader\\SymfonySerializerBootloader"
+                "Spiral\\Serializer\\Symfony\\Bootloader\\SerializerBootloader"
             ]
         }
     },
