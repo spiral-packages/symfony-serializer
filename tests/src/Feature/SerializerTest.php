@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace Spiral\Serializer\Symfony\Tests\Feature;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Spiral\Serializer\SerializerManager;
 use Spiral\Serializer\Symfony\Serializer;
 use Spiral\Serializer\Symfony\Tests\App\NestedObjects\City;
 use Spiral\Serializer\Symfony\Tests\App\NestedObjects\Country;
 use Spiral\Serializer\Symfony\Tests\App\Object\Post;
 use Spiral\Serializer\Symfony\Tests\App\Object\Product;
+use Spiral\Serializer\Symfony\Tests\App\Object\User;
 
 final class SerializerTest extends TestCase
 {
-    /** @dataProvider serializeDataProvider  */
+    #[DataProvider('serializeDataProvider')]
     public function testSerialize(string $expected, mixed $payload, string $format): void
     {
         $manager = $this->getContainer()->get(SerializerManager::class);
@@ -75,6 +77,22 @@ final class SerializerTest extends TestCase
         $this->assertSame('NewYork', $result->cities[1]->name);
     }
 
+    public function testUnserializeDateTimeInterface(): void
+    {
+        $manager = $this->getContainer()->get(SerializerManager::class);
+
+        $result = $manager->unserialize(
+            '{"id":3,"registeredAt":"2023-06-05T22:12:55+00:00"}',
+            User::class,
+            'symfony-json'
+        );
+
+        $this->assertInstanceOf(User::class, $result);
+        $this->assertSame(3, $result->id);
+        $this->assertInstanceOf(\DateTimeImmutable::class, $result->registeredAt);
+        $this->assertSame('2023-06-05T22:12:55+00:00', $result->registeredAt->format('c'));
+    }
+
     public function testGroupNormalize(): void
     {
         $manager = $this->getContainer()->get(SerializerManager::class);
@@ -131,6 +149,21 @@ final class SerializerTest extends TestCase
                 new City('Chicago', new \DateTimeZone('America/Chicago')),
                 new City('New York', new \DateTimeZone('America/New_York'))
             ]),
+            'symfony-xml'
+        ];
+        yield [
+            '{"id":3,"registeredAt":"2023-06-05T22:12:55+00:00"}',
+            new User(3, new \DateTimeImmutable('2023-06-05T22:12:55+00:00')),
+            'symfony-json'
+        ];
+        yield [
+            'id,registeredAt3,2023-06-05T22:12:55+00:00',
+            new User(3, new \DateTimeImmutable('2023-06-05T22:12:55+00:00')),
+            'symfony-csv'
+        ];
+        yield [
+            '<?xmlversion="1.0"?><response><id>3</id><registeredAt>2023-06-05T22:12:55+00:00</registeredAt></response>',
+            new User(3, new \DateTimeImmutable('2023-06-05T22:12:55+00:00')),
             'symfony-xml'
         ];
     }
