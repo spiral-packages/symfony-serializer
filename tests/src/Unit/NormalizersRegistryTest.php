@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Spiral\Serializer\Symfony\Tests\Unit;
 
 use Spiral\Boot\Environment\DebugMode;
+use Spiral\Serializer\Symfony\Normalizer\RamseyUuidNormalizer;
 use Spiral\Serializer\Symfony\NormalizersRegistry;
 use Symfony\Component\Serializer\Mapping\Loader\LoaderInterface;
 use Symfony\Component\Serializer\Normalizer;
@@ -18,7 +19,7 @@ final class NormalizersRegistryTest extends TestCase
             DebugMode::Enabled
         );
 
-        $this->assertCount(14, $registry->all());
+        $this->assertCount(15, $registry->all());
 
         $this->assertTrue($registry->has(Normalizer\UnwrappingDenormalizer::class));
         $this->assertTrue($registry->has(Normalizer\ProblemNormalizer::class));
@@ -34,6 +35,7 @@ final class NormalizersRegistryTest extends TestCase
         $this->assertTrue($registry->has(Normalizer\DataUriNormalizer::class));
         $this->assertTrue($registry->has(Normalizer\ArrayDenormalizer::class));
         $this->assertTrue($registry->has(Normalizer\ObjectNormalizer::class));
+        $this->assertTrue($registry->has(RamseyUuidNormalizer::class));
     }
 
     public function testRegister(): void
@@ -47,11 +49,11 @@ final class NormalizersRegistryTest extends TestCase
         $normalizer2 = $this->createMock(Normalizer\DenormalizerInterface::class);
 
         $registry->register($normalizer, 2);
-        $this->assertCount(15, $registry->all());
+        $this->assertCount(16, $registry->all());
         $this->assertTrue($registry->has($normalizer::class));
 
         $registry->register($normalizer2, 1);
-        $this->assertCount(16, $registry->all());
+        $this->assertCount(17, $registry->all());
         $this->assertTrue($registry->has($normalizer2::class));
 
         $this->assertSame($normalizer2, $registry->all()[0]);
