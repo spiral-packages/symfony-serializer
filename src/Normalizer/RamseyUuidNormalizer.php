@@ -41,4 +41,11 @@ final class RamseyUuidNormalizer implements NormalizerInterface, DenormalizerInt
     {
         return \is_string($data) && \is_a($type, UuidInterface::class, true) && Uuid::isValid($data);
     }
+
+    public function getSupportedTypes(?string $format): array
+    {
+        return [
+            UuidInterface::class => true,
+        ];
+    }
 }
