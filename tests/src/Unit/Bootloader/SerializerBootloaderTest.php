@@ -18,6 +18,7 @@ use Symfony\Component\Serializer\Encoder\CsvEncoder;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
+use Symfony\Component\Serializer\Mapping\Loader\AttributeLoader;
 use Symfony\Component\Serializer\Mapping\Loader\LoaderInterface;
 use Symfony\Component\Serializer\Normalizer\JsonSerializableNormalizer;
 use Symfony\Component\Serializer\Normalizer\UidNormalizer;
@@ -36,8 +37,8 @@ final class SerializerBootloaderTest extends TestCase
             'encoders' => [
                 JsonEncoder::class,
                 new CsvEncoder(),
-                new Autowire(XmlEncoder::class)
-            ]
+                new Autowire(XmlEncoder::class),
+            ],
         ]));
 
         $this->assertCount(3, $registry->all());
@@ -49,7 +50,13 @@ final class SerializerBootloaderTest extends TestCase
     public function testConfigureNormalizers(): void
     {
         $container = new Container();
-        $container->bind(LoaderInterface::class, new AnnotationLoader(new AnnotationReader()));
+
+        if (\class_exists(AttributeLoader::class)) {
+            $container->bind(LoaderInterface::class, new AttributeLoader());
+        } elseif (\class_exists(AnnotationLoader::class)) {
+            $container->bind(LoaderInterface::class, new AnnotationLoader(new AnnotationReader()));
+        }
+
         $container->bind(EnvironmentInterface::class, new Environment());
 
         $bootloader = new SerializerBootloader($container);
@@ -61,8 +68,8 @@ final class SerializerBootloaderTest extends TestCase
             'normalizers' => [
                 UnwrappingDenormalizer::class,
                 new UidNormalizer(),
-                new Autowire(JsonSerializableNormalizer::class)
-            ]
+                new Autowire(JsonSerializableNormalizer::class),
+            ],
         ]), $container);
 
         $this->assertCount(3, $registry->all());

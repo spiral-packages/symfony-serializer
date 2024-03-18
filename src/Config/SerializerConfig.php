@@ -7,6 +7,7 @@ namespace Spiral\Serializer\Symfony\Config;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Component\Messenger\Transport\Serialization\Normalizer\FlattenExceptionNormalizer;
 use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
+use Symfony\Component\Serializer\Mapping\Loader\AttributeLoader;
 use Symfony\Component\Serializer\Mapping\Loader\LoaderInterface;
 use Spiral\Core\InjectableConfig;
 
@@ -37,6 +38,18 @@ final class SerializerConfig extends InjectableConfig
 
     public function getMetadataLoader(): LoaderInterface
     {
-        return $this->config['metadataLoader'] ?? new AnnotationLoader(new AnnotationReader());
+        if (!empty($this->config['metadataLoader'])) {
+            return $this->config['metadataLoader'];
+        }
+
+        if (\class_exists(AttributeLoader::class)) {
+            return new AttributeLoader();
+        }
+
+        if (\class_exists(AnnotationLoader::class)) {
+            return new AnnotationLoader(new AnnotationReader());
+        }
+
+        throw new \LogicException('No metadata loader found');
     }
 }
