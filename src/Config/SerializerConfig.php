@@ -46,7 +46,9 @@ final class SerializerConfig extends InjectableConfig
             return new AttributeLoader();
         }
 
+        /** @psalm-suppress DeprecatedClass */
         if (\class_exists(AnnotationLoader::class)) {
+            /** @psalm-suppress TooManyArguments, InvalidReturnStatement */
             return new AnnotationLoader(new AnnotationReader());
         }
 
