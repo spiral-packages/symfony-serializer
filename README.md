@@ -25,8 +25,8 @@ Make sure that your server is configured with following PHP version and extensio
 
 - PHP 8.1+
 - Spiral framework ^3.7
-- Symfony Serializer Component ^5.4 || ^6.0
-- Symfony PropertyAccess Component ^5.4 || ^6.0
+- Symfony Serializer Component ^6.4 || ^7.0
+- Symfony PropertyAccess Component ^6.4 || ^7.0
 
 ## Installation
 
@@ -69,6 +69,7 @@ parameters to extend the default configuration.
 ```php
 use Symfony\Component\Serializer\Encoder;
 use Symfony\Component\Serializer\Normalizer;
+use Symfony\Component\Serializer\Mapping\Loader\AttributeLoader;
 use Spiral\Core\Container\Autowire;
 
 return [
@@ -94,7 +95,7 @@ return [
         Encoder\XmlEncoder::class,
         new Autowire(Encoder\YamlEncoder::class),
     ],
-    'metadataLoader' => new AnnotationLoader(new AnnotationReader()) // by default
+    'metadataLoader' => new AttributeLoader() // by default
  //  Other available loaders:
  // 'metadataLoader' => new YamlFileLoader('/path/to/your/definition.yaml')
  // 'metadataLoader' => new XmlFileLoader('/path/to/your/definition.xml')

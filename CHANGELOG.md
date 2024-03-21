@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.0 - 2023-06-08
+- **Other Features**
+  - Added the `Spiral\Serializer\Symfony\Normalizer\RamseyUuidNormalizer` class to normalize and denormalize
+    UUID objects.
+
 ## 2.0.0 - 2023-04-19
 - **High Impact Changes**
   - Since version **2.0.0**, serializers are registered with names `symfony-json`, `symfony-csv`,
