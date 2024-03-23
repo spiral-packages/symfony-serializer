@@ -11,6 +11,7 @@ use Spiral\Serializer\Symfony\EncodersRegistryInterface;
 use Spiral\Serializer\Symfony\NormalizersRegistry;
 use Spiral\Serializer\Symfony\NormalizersRegistryInterface;
 use Spiral\Serializer\Symfony\Encoder;
+use Spiral\Serializer\Symfony\Serializer;
 use Spiral\Serializer\Symfony\Tests\Feature\TestCase;
 
 final class SerializerBootloaderTest extends TestCase

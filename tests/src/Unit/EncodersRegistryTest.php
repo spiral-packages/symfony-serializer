@@ -17,7 +17,7 @@ final class EncodersRegistryTest extends TestCase
     {
         $registry = new EncodersRegistry();
 
-        $this->assertCount(4, $registry->all());
+        $this->assertCount(5, $registry->all());
 
         $this->assertTrue($registry->has(JsonEncoder::class));
         $this->assertTrue($registry->has(CsvEncoder::class));
@@ -43,13 +43,13 @@ final class EncodersRegistryTest extends TestCase
 
         $encoder = $this->createMock(EncoderInterface::class);
 
-        $this->assertCount(4, $registry->all());
-        $registry->register($encoder);
         $this->assertCount(5, $registry->all());
+        $registry->register($encoder);
+        $this->assertCount(6, $registry->all());
         $this->assertTrue($registry->has($encoder::class));
 
         $registry->register($encoder);
-        $this->assertCount(5, $registry->all());
+        $this->assertCount(6, $registry->all());
         $this->assertTrue($registry->has($encoder::class));
     }
 

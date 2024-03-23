@@ -19,7 +19,7 @@ final class NormalizersRegistryTest extends TestCase
             DebugMode::Enabled
         );
 
-        $this->assertCount(15, $registry->all());
+        $this->assertCount(16, $registry->all());
 
         $this->assertTrue($registry->has(Normalizer\UnwrappingDenormalizer::class));
         $this->assertTrue($registry->has(Normalizer\ProblemNormalizer::class));
@@ -49,11 +49,11 @@ final class NormalizersRegistryTest extends TestCase
         $normalizer2 = $this->createMock(Normalizer\DenormalizerInterface::class);
 
         $registry->register($normalizer, 2);
-        $this->assertCount(16, $registry->all());
+        $this->assertCount(17, $registry->all());
         $this->assertTrue($registry->has($normalizer::class));
 
         $registry->register($normalizer2, 1);
-        $this->assertCount(17, $registry->all());
+        $this->assertCount(18, $registry->all());
         $this->assertTrue($registry->has($normalizer2::class));
 
         $this->assertSame($normalizer2, $registry->all()[0]);

@@ -21,6 +21,12 @@ final class ProtobufMessageNormalizer implements NormalizerInterface, Denormaliz
 
     public function denormalize(mixed $data, string $type, ?string $format = null, array $context = []): mixed
     {
+        \assert(\is_string($data), 'The data must be a string.');
+        \assert(\is_a($type, Message::class, true), 'The type must be a subclass of Message.');
+
+        /**
+         * @psalm-suppress UnsafeInstantiation
+         */
         $object = new $type();
 
         try {
@@ -55,6 +61,9 @@ final class ProtobufMessageNormalizer implements NormalizerInterface, Denormaliz
         return $data instanceof Message;
     }
 
+    /**
+     * @return array<class-string, bool>
+     */
     public function getSupportedTypes(?string $format): array
     {
         return [

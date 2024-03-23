@@ -10,7 +10,7 @@ use Symfony\Component\Serializer\Encoder\EncoderInterface;
 use Symfony\Component\Serializer\Exception\RuntimeException;
 
 /**
- *
+ * This is a proxy class to the ProtobufNormalizer. All the logic of encoding and decoding is in the ProtobufNormalizer.
  */
 final class ProtobufEncoder implements EncoderInterface, DecoderInterface
 {
