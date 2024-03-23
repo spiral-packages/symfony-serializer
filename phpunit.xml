@@ -12,7 +12,7 @@
          backupStaticProperties="false">
     <testsuites>
         <testsuite name="Symfony Serializer Bridge Test Suite">
-            <directory>./tests/</directory>
+            <directory>./tests/src/</directory>
         </testsuite>
     </testsuites>
     <coverage>
