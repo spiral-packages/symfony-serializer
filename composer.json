@@ -16,6 +16,7 @@
         "spiral/config": "^3.7",
         "doctrine/annotations": "^1.12 || ^2.0",
         "spiral/serializer": "^3.7",
+        "symfony/property-info": "^6.4 || ^7.0",
         "symfony/serializer": "^6.4 || ^7.0",
         "symfony/property-access": "^6.4 || ^7.0"
     },

@@ -73,7 +73,9 @@ final class SerializerTest extends TestCase
 
         $this->assertInstanceOf(Country::class, $result);
         $this->assertSame('USA', $result->name);
+        $this->assertInstanceOf(City::class, $result->cities[0]);
         $this->assertSame('Chicago', $result->cities[0]->name);
+        $this->assertInstanceOf(City::class, $result->cities[1]);
         $this->assertSame('NewYork', $result->cities[1]->name);
     }
 
