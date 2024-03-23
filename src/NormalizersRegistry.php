@@ -6,8 +6,10 @@ namespace Spiral\Serializer\Symfony;
 
 use Ramsey\Uuid\UuidInterface;
 use Spiral\Boot\Environment\DebugMode;
+use Spiral\Serializer\Symfony\Normalizer\ProtobufMessageNormalizer;
 use Spiral\Serializer\Symfony\Normalizer\RamseyUuidNormalizer;
 use Symfony\Component\Messenger\Transport\Serialization\Normalizer\FlattenExceptionNormalizer;
+use Google\Protobuf\Internal\Message;
 use Symfony\Component\PropertyInfo\Extractor\PhpDocExtractor;
 use Symfony\Component\PropertyInfo\Extractor\ReflectionExtractor;
 use Symfony\Component\PropertyInfo\PropertyInfoExtractor;
@@ -104,6 +106,10 @@ class NormalizersRegistry implements NormalizersRegistryInterface
 
         if (\interface_exists(UuidInterface::class)) {
             $this->register(new RamseyUuidNormalizer(), 155);
+        }
+
+        if (\class_exists(Message::class)) {
+            $this->register(new ProtobufMessageNormalizer(), 10);
         }
     }
 }

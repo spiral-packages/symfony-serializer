@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Spiral\Serializer\Symfony;
 
+use Spiral\Serializer\Symfony\Encoder\ProtobufEncoder;
 use Symfony\Component\Serializer\Encoder\EncoderInterface;
 use Symfony\Component\Serializer\Encoder;
 use Symfony\Component\Yaml\Dumper;
+use Google\Protobuf\Internal\Message;
 
 class EncodersRegistry implements EncodersRegistryInterface
 {
@@ -57,6 +59,9 @@ class EncodersRegistry implements EncodersRegistryInterface
         $this->register(new Encoder\XmlEncoder());
         if (\class_exists(Dumper::class)) {
             $this->register(new Encoder\YamlEncoder());
+        }
+        if (\class_exists(Message::class)) {
+            $this->register(new ProtobufEncoder());
         }
     }
 }
