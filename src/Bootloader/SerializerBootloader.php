@@ -71,6 +71,7 @@ final class SerializerBootloader extends Bootloader
         $registry->register('symfony-json', new Serializer($serializer, 'json'));
         $registry->register('symfony-csv', new Serializer($serializer, 'csv'));
         $registry->register('symfony-xml', new Serializer($serializer, 'xml'));
+        $registry->register('symfony-proto', new Serializer($serializer, 'proto'));
 
         if (\class_exists(Dumper::class)) {
             $registry->register('symfony-yaml', new Serializer($serializer, 'yaml'));

@@ -16,10 +16,12 @@
         "spiral/config": "^3.7",
         "doctrine/annotations": "^1.12 || ^2.0",
         "spiral/serializer": "^3.7",
+        "symfony/property-info": "^6.4 || ^7.0",
         "symfony/serializer": "^6.4 || ^7.0",
         "symfony/property-access": "^6.4 || ^7.0"
     },
     "require-dev": {
+        "google/protobuf": "^v4.26",
         "phpunit/phpunit": "^10.2",
         "spiral/testing": "^2.7",
         "symfony/yaml": "^6.4 || ^7.0",
@@ -36,6 +38,8 @@
     },
     "autoload-dev": {
         "psr-4": {
+            "GPBMetadata\\": "tests/generated/GPBMetadata",
+            "Service\\": "tests/generated/Service",
             "Spiral\\Serializer\\Symfony\\Tests\\App\\": "tests/app",
             "Spiral\\Serializer\\Symfony\\Tests\\": "tests/src"
         }
