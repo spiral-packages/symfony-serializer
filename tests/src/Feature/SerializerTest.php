@@ -6,7 +6,6 @@ namespace Spiral\Serializer\Symfony\Tests\Feature;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use Spiral\Serializer\SerializerManager;
-use Spiral\Serializer\Symfony\Encoder;
 use Spiral\Serializer\Symfony\Tests\App\NestedObjects\City;
 use Spiral\Serializer\Symfony\Tests\App\NestedObjects\Country;
 use Spiral\Serializer\Symfony\Tests\App\Object\Post;
