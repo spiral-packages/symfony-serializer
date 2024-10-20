@@ -266,7 +266,7 @@ use App\Entity\Post;
 /** @var PostRepository $repository */
 $post = $repository->find($postId);
 /** @var ContainerInterface $container */
-$serializer = $container->get(SerializerManager::class);
+$manager = $container->get(SerializerManager::class);
 
 $serializedString = $manager->serialize($post , 'symfony-json');
 
